@@ -1,7 +1,7 @@
 import Fluent
 import Vapor
 
-final class Kategoria: Model, Content {
+final class Category: Model, Content {
     static let schema = "kategoria"
     
     @ID(key: .id)
@@ -9,6 +9,9 @@ final class Kategoria: Model, Content {
 
     @Field(key: "title")
     var title: String
+    
+    @Children(for: \.$category)
+    var products: [Product]
     
     init() { }
 

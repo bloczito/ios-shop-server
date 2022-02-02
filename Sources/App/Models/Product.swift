@@ -1,7 +1,7 @@
 import Fluent
 import Vapor
 
-final class Produkt: Model, Content {
+final class Product: Model, Content {
     static let schema = "produkt"
     
     @ID(key: .id)
@@ -17,18 +17,25 @@ final class Produkt: Model, Content {
     var image:  String
     
     @Field(key: "quantity")
-    var quantity:  Int
+    var quantity:  UInt
+    
+    @Field(key: "price")
+    var price:  Double
     
     @Parent(key: "kategoria_id")
-    var kategoria_id: Kategoria
+    var category: Category
+    
+    @Children(for: \.$product)
+    var cartItems: [CartItem]
     
     init() { }
 
-    init(id: UUID? = nil, title: String, description: String, image: String, quantity: Int) {
+    init(id: UUID? = nil, title: String, description: String, image: String, price: Double, quantity: UInt) {
         self.id = id
         self.title = title
         self.description = description
         self.image = image
+//        self.price = price
         self.quantity = quantity
     }
 }

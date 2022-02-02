@@ -1,5 +1,6 @@
 import Fluent
 import Vapor
+import Foundation
 
 struct ProduktController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
@@ -11,17 +12,38 @@ struct ProduktController: RouteCollection {
         }
     }
 
-    func index(req: Request) throws -> EventLoopFuture<[Produkt]> {
-        return Produkt.query(on: req.db).all()
+    func index(req: Request) throws -> EventLoopFuture<[ProductDto]> {
+        let categoryId = req.query[UUID.self, at: "categoryId"]
+        
+        if let id = categoryId {
+            return Product
+                .query(on: req.db)
+                .filter(\.$category.$id == id)
+                .all()
+                .mapEach { product in
+                    ProductDto(product: product)
+                }
+        } else {
+            return Product
+                .query(on: req.db)
+                .all()
+                .mapEach { product in
+                    ProductDto(product: product)
+                }
+        }
+        
+        
     }
 
-    func create(req: Request) throws -> EventLoopFuture<Produkt> {
-        let produkt = try req.content.decode(Produkt.self)
-        return produkt.save(on: req.db).map { produkt }
+    func create(req: Request) throws -> EventLoopFuture<Product> {
+        let product = try req.content.decode(Product.self)
+        return product.create(on: req.db).map{product}    
     }
+    
+
 
     func delete(req: Request) throws -> EventLoopFuture<HTTPStatus> {
-        return Produkt.find(req.parameters.get("todoID"), on: req.db)
+        return Product.find(req.parameters.get("produktID"), on: req.db)
             .unwrap(or: Abort(.notFound))
             .flatMap { $0.delete(on: req.db) }
             .transform(to: .ok)

@@ -11,17 +11,18 @@ struct KategoriaController: RouteCollection {
         }
     }
 
-    func index(req: Request) throws -> EventLoopFuture<[Kategoria]> {
-        return Kategoria.query(on: req.db).all()
+    func index(req: Request) throws -> EventLoopFuture<[Category]> {
+        let cat = Category.query(on: req.db).all()
+        return cat;
     }
 
-    func create(req: Request) throws -> EventLoopFuture<Kategoria> {
-        let todo = try req.content.decode(Kategoria.self)
+    func create(req: Request) throws -> EventLoopFuture<Category> {
+        let todo = try req.content.decode(Category.self)
         return todo.save(on: req.db).map { todo }
     }
 
     func delete(req: Request) throws -> EventLoopFuture<HTTPStatus> {
-        return Kategoria.find(req.parameters.get("todoID"), on: req.db)
+        return Category.find(req.parameters.get("todoID"), on: req.db)
             .unwrap(or: Abort(.notFound))
             .flatMap { $0.delete(on: req.db) }
             .transform(to: .ok)
